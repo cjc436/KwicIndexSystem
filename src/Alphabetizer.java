@@ -1,10 +1,11 @@
 import java.util.ArrayList;
 
-public class Alphabetizer {
+public class Alphabetizer extends Filter {
     private ArrayList<String> lines;
 
-    public Alphabetizer(ArrayList<String> lines) {
-        this.lines = lines;
+    public Alphabetizer(Pipe shiftedLinesInputPipe, Pipe alphabetizedOutputPipe) {
+        addInputPipe(shiftedLinesInputPipe);
+        addOutputPipe(alphabetizedOutputPipe);
     }
 
     public ArrayList<String> alphabetize() {
@@ -75,5 +76,11 @@ public class Alphabetizer {
             return c1 < c2;
         }
         return s1Length <= s2Length;
+    }
+
+    @Override
+    public void run() {
+        lines = getInputPipe(0).readAll();
+        getOutputPipe(0).writeAll(alphabetize());
     }
 }

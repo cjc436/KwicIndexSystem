@@ -1,19 +1,34 @@
+import java.util.ArrayList;
+
 public abstract class Filter extends Thread {
-    private Pipe input;
-    private Pipe output;
+    private ArrayList<Pipe> inputPipes = new ArrayList<>();
+    private ArrayList<Pipe> outputPipes = new ArrayList<>();
     private boolean stop = false;
 
-    public Pipe getInput() {
-        return input;
+    public Pipe getInputPipe(int index) {
+        return inputPipes.get(index);
     }
-    public Pipe getOutput() {
-        return output;
+    public Pipe getOutputPipe(int index) {
+        return outputPipes.get(index);
     }
-    public void setInput(Pipe newInput) {
-        input = newInput;
+    public ArrayList<Pipe> getAllInputPipes() {
+        return inputPipes;
     }
-    public void setOutput(Pipe newOutput) {
-        output = newOutput;
+    public ArrayList<Pipe> getAllOutputPipes() {
+        return outputPipes;
+    }
+
+    public void addInputPipe(Pipe newPipe) {
+        inputPipes.add(newPipe);
+    }
+    public void addOutputPipe(Pipe newPipe) {
+        outputPipes.add(newPipe);
+    }
+    public void setInputPipes(ArrayList<Pipe> newInputPipes) {
+        inputPipes = newInputPipes;
+    }
+    public void setOutputPipes(ArrayList<Pipe> newOutputPipes) {
+        outputPipes = newOutputPipes;
     }
 
     public abstract void run();

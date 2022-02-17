@@ -3,13 +3,23 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class InputHandler {
-    public InputHandler() {
+public class InputHandler extends Filter {
+    private String inputLinesFileName;
+    private String inputStopWordsFileName;
+
+    public InputHandler(Pipe mainOutputPipe, Pipe stopWordsOutputPipe) {
+        ArrayList<Pipe> outputs = new ArrayList<>();
+        outputs.add(mainOutputPipe);
+        outputs.add(stopWordsOutputPipe);
+        setOutputPipes(outputs);
+
+
     }
 
     public ArrayList<String> getInputLines() {
         System.out.println("Please provide a file path to a file containing lines to be indexed:");
-        return readLinesFromFile(new File(InputHelper.readStr(null)));
+//        return readLinesFromFile(new File(InputHelper.readStr(null)));
+        return readLinesFromFile(new File("test.txt"));
     }
 
     public ArrayList<String> getStopWords() {
@@ -48,5 +58,16 @@ public class InputHandler {
             return lines;
         }
         return lines;
+    }
+
+    @Override
+    public void run() {
+        ArrayList<Pipe> outputPipes = getAllOutputPipes();
+
+        Pipe inputLinePipes = outputPipes.get(0);
+        inputLinePipes.writeAll(getInputLines());
+
+        //Pipe stopWordsPipe = outputPipes.get(1);
+        //stopWordsPipe.writeAll(getStopWords());
     }
 }
