@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 public class CircularShifter extends Filter {
-    private ArrayList<String> inputLines;
     private HashSet<String> stopWords;
 
     public CircularShifter(Pipe inputLinesPipe, Pipe stopWordsInputPipe, Pipe outputShiftedLinesPipe) {
@@ -14,25 +13,36 @@ public class CircularShifter extends Filter {
         addOutputPipe(outputShiftedLinesPipe);
     }
 
-    public ArrayList<String> shiftLines() {
-        ArrayList<String> shiftedLines = new ArrayList<>();
-        for (String inputLine : this.inputLines) {
-            ArrayList<String> separated = new ArrayList<>(Arrays.asList(inputLine.split(" ")));
+    public void shiftLines() {
+        Pipe inputPipe = getInputPipe(0);
+        Pipe outputPipe = getOutputPipe(0);
+
+        while (!(inputPipe.getInputCollectionStatus() && inputPipe.isSharedMemEmpty())) {
+            if (inputPipe.isSharedMemEmpty()) {
+                yield();
+                continue;
+            }
+            ArrayList<String> separated = new ArrayList<>(Arrays.asList(inputPipe.read().split(" ")));
             for (int i = 0; i < separated.size(); i++) {
-                if (!this.stopWords.contains(separated.get(0)))
-                    shiftedLines.add(String.join(" ",separated));
-                separated.add(separated.get(0));
-                separated.remove(0);
+                if (!this.stopWords.contains(separated.get(0))) {
+                    outputPipe.write(String.join(" ", separated));
+                    yield();
+                }
+                separated.add(separated.remove(0));
             }
         }
-        return shiftedLines;
+        outputPipe.setInputCollectionStatus(true);
     }
 
     @Override
     public void run() {
-        inputLines = getInputPipe(0).readAll();
+        // Wait until stop words have been gathered because we need all of them
+        Pipe inputPipe = getInputPipe(1);
+        while (!inputPipe.getInputCollectionStatus())
+            yield();
+
         stopWords = new HashSet<>(getInputPipe(1).readAll());
 
-        getOutputPipe(0).writeAll(shiftLines());
+        shiftLines();
     }
 }

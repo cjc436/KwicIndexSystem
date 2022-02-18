@@ -35,17 +35,9 @@ public class KwicIndexSystem {
 
         OutputHandler outputHandler = new OutputHandler(alphabetizedLinesToOutput, outputFileName);
 
-        try {
-            inputHandler.start();
-            inputHandler.join();
-            circularShifter.start();
-            circularShifter.join();
-            alphabetizer.start();
-            alphabetizer.join();
-            outputHandler.start();
-            outputHandler.join();
-        } catch (InterruptedException e) {
-
-        }
+        inputHandler.start();
+        circularShifter.start();
+        alphabetizer.start();
+        outputHandler.start();
     }
 }

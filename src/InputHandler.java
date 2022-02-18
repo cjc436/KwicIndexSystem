@@ -36,7 +36,7 @@ public class InputHandler extends Filter {
                 if (!(line.isEmpty() || line.equals(""))) {
                     if (lineByLine) {
                         outputPipe.write(line);
-                        // yield
+                        yield();
                     } else {
                         lines.add(line);
                     }
@@ -47,12 +47,15 @@ public class InputHandler extends Filter {
         }
         if (!lineByLine)
             outputPipe.writeAll(lines);
+        outputPipe.setInputCollectionStatus(true);
     }
 
     @Override
     public void run() {
         if (inputStopWordsFileName != null)
             getStopWords();
+        else
+            getOutputPipe(1).setInputCollectionStatus(true);
         getInputLines();
     }
 

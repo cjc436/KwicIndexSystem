@@ -12,11 +12,15 @@ public class OutputHandler extends Filter {
     }
 
     public void outputStringArrayToFile() {
-        ArrayList<String> lines = getInputPipe(0).readAll();
+        Pipe inputPipe = getInputPipe(0);
         try {
             FileWriter fileWriter = new FileWriter(new File(outputFileName));
-            for (String line : lines) {
-                fileWriter.write(line + "\n");
+            while (!(inputPipe.getInputCollectionStatus() && inputPipe.isSharedMemEmpty())) {
+                if (inputPipe.isSharedMemEmpty()) {
+                    yield();
+                    continue;
+                }
+                fileWriter.write(inputPipe.read() + "\n");
             }
             fileWriter.close();
             System.out.println("The file was successfully created in the \"output\" directory.");

@@ -1,30 +1,36 @@
 import java.util.ArrayList;
 
 public class Alphabetizer extends Filter {
-    private ArrayList<String> lines;
 
     public Alphabetizer(Pipe shiftedLinesInputPipe, Pipe alphabetizedOutputPipe) {
         addInputPipe(shiftedLinesInputPipe);
         addOutputPipe(alphabetizedOutputPipe);
     }
 
-    public ArrayList<String> alphabetize() {
+    public void alphabetize() {
+        Pipe inputPipe = getInputPipe(0);
+        Pipe outputPipe = getOutputPipe(0);
+
         ArrayList<String> alphabetizedLines = new ArrayList<>();
-        alphabetizedLines.add(lines.get(0));
-        for (int i = 1; i < lines.size(); i++) {
-            String key = lines.get(i);
-            int j = i - 1;
-            while (j > -1) {
-                boolean comp = alphabeticalComparison(key,alphabetizedLines.get(j));
+        while (!(inputPipe.getInputCollectionStatus() && inputPipe.isSharedMemEmpty())) {
+            if (inputPipe.isSharedMemEmpty()) {
+                yield();
+                continue;
+            }
+            String key = inputPipe.read();
+            int i = alphabetizedLines.size() - 1;
+            while (i > -1) {
+                boolean comp = alphabeticalComparison(key,alphabetizedLines.get(i));
                 if (!comp) {
                     break;
                 }
-                j--;
+                i--;
             }
-            alphabetizedLines.add(j+1,key);
-
+            alphabetizedLines.add(i+1,key);
         }
-        return alphabetizedLines;
+        // Can't write lines to memory individually since the next line could be alphabetically before it
+        outputPipe.writeAll(alphabetizedLines);
+        outputPipe.setInputCollectionStatus(true);
     }
 
     /**
@@ -80,7 +86,6 @@ public class Alphabetizer extends Filter {
 
     @Override
     public void run() {
-        lines = getInputPipe(0).readAll();
-        getOutputPipe(0).writeAll(alphabetize());
+        alphabetize();
     }
 }
