@@ -7,67 +7,66 @@ public class InputHandler extends Filter {
     private String inputLinesFileName;
     private String inputStopWordsFileName;
 
-    public InputHandler(Pipe mainOutputPipe, Pipe stopWordsOutputPipe) {
+    public InputHandler(Pipe mainOutputPipe, Pipe stopWordsOutputPipe,String mainInputFileName, String stopWordsFileName) {
         ArrayList<Pipe> outputs = new ArrayList<>();
         outputs.add(mainOutputPipe);
         outputs.add(stopWordsOutputPipe);
         setOutputPipes(outputs);
 
+        inputLinesFileName = mainInputFileName;
+        inputStopWordsFileName = stopWordsFileName;
 
     }
 
-    public ArrayList<String> getInputLines() {
-        System.out.println("Please provide a file path to a file containing lines to be indexed:");
-//        return readLinesFromFile(new File(InputHelper.readStr(null)));
-        return readLinesFromFile(new File("test.txt"));
+    private void getInputLines() {
+        readLinesFromFile(new File(inputLinesFileName),true, getOutputPipe(0));
     }
 
-    public ArrayList<String> getStopWords() {
-        System.out.println("Do you wish to provide a file of stop words? (y/n)");
-        String response = InputHelper.readStr(null);
-        while (!(response.equals("y") || response.equals("n"))) {
-            System.out.println("Please provide a valid response. (y/n)");
-            response = InputHelper.readStr(null);
-        }
-        if (response.equals("n"))
-            return new ArrayList<>();
-        System.out.println("Please provide a file path to a file containing the stop words.");
-        System.out.println("In this file, there should be one stop word on each line.");
-        return readLinesFromFile(new File(InputHelper.readStr(null)));
+    private void getStopWords() {
+        readLinesFromFile(new File(inputStopWordsFileName),false, getOutputPipe(1));
 
     }
 
-    private ArrayList<String> readLinesFromFile(File file) {
-        while (!file.canRead()) {
-            System.out.println("The file path provided was invalid! Please provide a valid file path or exit with \"exit!\":");
-            String response = InputHelper.readStr(null);
-            if (response.equals("exit!"))
-                return new ArrayList<>();
-            file = new File(response);
-        }
+    private void readLinesFromFile(File file, boolean lineByLine,Pipe outputPipe) {
         ArrayList<String> lines = new ArrayList<>();
         try {
             Scanner fileReader = new Scanner(file);
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine().trim();
                 if (!(line.isEmpty() || line.equals(""))) {
-                    lines.add(line);
+                    if (lineByLine) {
+                        outputPipe.write(line);
+                        // yield
+                    } else {
+                        lines.add(line);
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
-            return lines;
+
         }
-        return lines;
+        if (!lineByLine)
+            outputPipe.writeAll(lines);
     }
 
     @Override
     public void run() {
-        ArrayList<Pipe> outputPipes = getAllOutputPipes();
+        if (inputStopWordsFileName != null)
+            getStopWords();
+        getInputLines();
+    }
 
-        Pipe inputLinePipes = outputPipes.get(0);
-        inputLinePipes.writeAll(getInputLines());
-
-        //Pipe stopWordsPipe = outputPipes.get(1);
-        //stopWordsPipe.writeAll(getStopWords());
+    public static String getExistingFileName(String prompt) {
+        System.out.println(prompt);
+        String response = InputHelper.readStr(null);
+        File file = new File(response);
+        while (!file.canRead()) {
+            System.out.println("The file path provided was invalid! Please provide a valid file path or exit with \"exit!\":");
+            response = InputHelper.readStr(null);
+            if (response.equals("exit!"))
+                return null;
+            file = new File(response);
+        }
+        return response;
     }
 }

@@ -18,9 +18,6 @@ public class Pipe {
     public ArrayList<String> readAll() {
         ArrayList<String> tempSharedMem = (ArrayList<String>) sharedMem.clone();
         sharedMem.clear();
-        for (String s : tempSharedMem) {
-            System.out.println(s);
-        }
         return tempSharedMem;
     }
 

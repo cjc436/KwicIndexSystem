@@ -4,20 +4,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class OutputHandler extends Filter {
-    public OutputHandler(Pipe alphabetizedLinesInputPipe) {
+    private String outputFileName;
+
+    public OutputHandler(Pipe alphabetizedLinesInputPipe, String outputFileName) {
         addInputPipe(alphabetizedLinesInputPipe);
+        this.outputFileName = outputFileName;
     }
 
-    public void outputStringArrayToFile(ArrayList<String> lines) {
-        System.out.println("Please provide a file name to output the results to:");
+    public void outputStringArrayToFile() {
+        ArrayList<String> lines = getInputPipe(0).readAll();
         try {
-            File file = new File("output/test_indexed.txt");
-//            File file = new File("output/"+InputHelper.readStr(null));
-//            while (!file.createNewFile()) {
-//                System.out.println("The file name provided already exists! Please provide another:");
-//                file = new File("output/"+InputHelper.readStr(null));
-//            }
-            FileWriter fileWriter = new FileWriter(file);
+            FileWriter fileWriter = new FileWriter(new File(outputFileName));
             for (String line : lines) {
                 fileWriter.write(line + "\n");
             }
@@ -31,6 +28,18 @@ public class OutputHandler extends Filter {
 
     @Override
     public void run() {
-        outputStringArrayToFile(getInputPipe(0).readAll());
+        outputStringArrayToFile();
+    }
+
+    public static String getValidFileName() {
+        System.out.println("Please provide a file name to output the results to:");
+        String fileName = "output/"+InputHelper.readStr(null);
+        File file = new File(fileName);
+        while (file.exists()) {
+            System.out.println("The file name provided already exists! Please provide another:");
+            fileName = "output/"+InputHelper.readStr(null);
+            file = new File(fileName);
+        }
+        return fileName;
     }
 }
