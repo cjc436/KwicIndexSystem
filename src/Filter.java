@@ -3,19 +3,12 @@ import java.util.ArrayList;
 public abstract class Filter extends Thread {
     private ArrayList<Pipe> inputPipes = new ArrayList<>();
     private ArrayList<Pipe> outputPipes = new ArrayList<>();
-    private boolean stop = false;
 
     public Pipe getInputPipe(int index) {
         return inputPipes.get(index);
     }
     public Pipe getOutputPipe(int index) {
         return outputPipes.get(index);
-    }
-    public ArrayList<Pipe> getAllInputPipes() {
-        return inputPipes;
-    }
-    public ArrayList<Pipe> getAllOutputPipes() {
-        return outputPipes;
     }
 
     public void addInputPipe(Pipe newPipe) {

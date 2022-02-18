@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class OutputHandler extends Filter {
     private String outputFileName;
@@ -11,7 +10,7 @@ public class OutputHandler extends Filter {
         this.outputFileName = outputFileName;
     }
 
-    public void outputStringArrayToFile() {
+    private void outputStringArrayToFile() {
         Pipe inputPipe = getInputPipe(0);
         try {
             FileWriter fileWriter = new FileWriter(new File(outputFileName));

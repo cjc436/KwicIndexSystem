@@ -13,7 +13,7 @@ public class CircularShifter extends Filter {
         addOutputPipe(outputShiftedLinesPipe);
     }
 
-    public void shiftLines() {
+    private void shiftLines() {
         Pipe inputPipe = getInputPipe(0);
         Pipe outputPipe = getOutputPipe(0);
 

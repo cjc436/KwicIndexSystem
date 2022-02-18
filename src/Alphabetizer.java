@@ -7,7 +7,7 @@ public class Alphabetizer extends Filter {
         addOutputPipe(alphabetizedOutputPipe);
     }
 
-    public void alphabetize() {
+    private void alphabetize() {
         Pipe inputPipe = getInputPipe(0);
         Pipe outputPipe = getOutputPipe(0);
 
